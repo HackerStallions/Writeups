@@ -59,7 +59,7 @@ iceunpack test.bin test.asc
 
 `test.asc` now contains an ASCII representation of the actual FPGA bitstream. This will consist of the primitives of the FPGA fabric, like routing, LUTs, IOs, FFs, block RAMs, etc.
 
-To make it possible to understand and work with **icestorm** contains a tool to convert this formware to Verilog:
+To make it possible to understand and work with **icestorm** contains a tool to convert this firmware to Verilog:
 
 ```sh
 icebox_vlog test.asc > test.v
@@ -181,7 +181,7 @@ In this case we can see that the input `stim` only is registered once (n5). Rena
         "n1071": "shiftin",
 ```
 
-Next we see that `n365` is used as a large part of *and* gates to flip-flops. Pretty much everywhere. Thise would indicate that this pin is used as an active low reset signal for our circuit. This is typically not very relevant for the normal operation of these electronics, but could be.
+Next we see that `n365` is used as a large part of *and* gates to flip-flops. Pretty much everywhere. This would indicate that this pin is used as an active low reset signal for our circuit. This is typically not very relevant for the normal operation of these electronics, but could be.
 But isolating nominal behavior from reset behavior is important. For this case the tool tries to isolate lines needed for rest lines from active circuits.
 
 To mark this as an active low reset we add:
@@ -559,7 +559,7 @@ iceprog rebuilt.bin
 
 ## 7. Load bitstream and read with baudrate 115200 from USB serial input.
 ```
-tio -b115200 /dev/ttyUSB0`
+tio -b115200 /dev/ttyUSB0
 ...
 flag{Are you ready to enter the rabbit hole?}
 flag{Are you ready to enter the rabbit hole?}
