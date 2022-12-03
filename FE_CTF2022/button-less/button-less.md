@@ -29,7 +29,7 @@
 
 ## 0. Inspect information
 
-We get an iCEstick FPGA development board and a simple highlevel schematic:
+We get an iCEstick FPGA development board and a simple high-level schematic:
 
 ![Schematic from challenge](schematic.png)
 
@@ -38,7 +38,7 @@ We get an iCEstick FPGA development board and a simple highlevel schematic:
 The iCEstick is a development board for the ICE40 FPGA family that has been available for the ICE40 FPGA family for a long while. It has been a staple board for showing examples of open-source ICE40 based tool flows due to its ubiquity and low cost.
 It comes with a FTDI 2232H controller for flashing the SPI EEPROM containing the FPGA bitstream and eventual other content, as well as performing UART I/O.
 
-Since the FPGA bitstream is stored in an off the shelf EEPROM - and the FPGA doesn't support any bitstream encryption - it is possible to directly read back the bitstream from the EEPROM.
+Since the FPGA bitstream is stored in an off-the-shelf EEPROM - and the FPGA doesn't support any bitstream encryption - it is possible to directly read back the bitstream from the EEPROM.
 
 To do the extraction the **icestorm** tool `iceprog` can be used:
 ```sh
@@ -132,11 +132,11 @@ To inspect it we will use the trusty `GTKWave`:
 gtkwave test2.vcd
 ```
 
-Inspecting the thousands of waveforms show that most a unchanging. But we notice some interesting changes. From 15.1 us a lot of the initial behavior changes, and a bunch of signals spring to life.
+Inspecting the thousands of waveforms show that most are unchanging. But we notice some interesting changes. From 15.1 µs a lot of the initial behavior changes, and a bunch of signals spring to life.
 
 ![Testbench signals](tb.png)
 
-My immediate thinking here is that this is an inbuilt reset generation circuit causing this. And sure enough if you trace through the carry chain logic one of the short carry chains is used to generate an initial power-on reset for the rest of the FPGA circuitry. This shouldn't technically be a necessity but it could be a hardware detail requiring this.
+My immediate thinking here is that this is an inbuilt reset generation circuit causing this. And sure enough, if you trace through the carry chain logic one of the short carry chains is used to generate an initial power-on reset for the rest of the FPGA circuitry. This shouldn't technically be a necessity but it could be a hardware detail requiring this.
 
 Further, looking at the signals, especially `n1062` and `n1096` shows that some circuit is sampling with a rate of about 115200 samples per second and doing something for 2 periods every 10th cycle. This smells a lot like a UART signal generator which is idle. We will note this down for later investigations.
 
@@ -181,7 +181,7 @@ In this case we can see that the input `stim` only is registered once (n5). Rena
         "n1071": "shiftin",
 ```
 
-Next we see that `n365` is used as a large part of *and* gates to flip flops. Pretty much everywhere. Thise would indicate that this pin is used as an active low reset signal for our circuit. This is typically not very relevant for the normal operation of these electronics, but could be.
+Next we see that `n365` is used as a large part of *and* gates to flip-flops. Pretty much everywhere. Thise would indicate that this pin is used as an active low reset signal for our circuit. This is typically not very relevant for the normal operation of these electronics, but could be.
 But isolating nominal behavior from reset behavior is important. For this case the tool tries to isolate lines needed for rest lines from active circuits.
 
 To mark this as an active low reset we add:
@@ -191,7 +191,7 @@ To mark this as an active low reset we add:
     }
 ```
 
-Continuing from there the goal was to identify how the input data flowed though the input processing. This turned out to be a lot of copy paste, searching and general hard work. No tooling available for this, yet.
+Continuing from there the goal was to identify how the input data flowed though the input processing. This turned out to be a lot of copy-paste, searching and general hard work. No tooling available for this, yet.
 In the end the renames had these marked up:
 ```json
         "n1071": "shiftin",
@@ -225,7 +225,7 @@ In the end the renames had these marked up:
         "n6": "stim_d2",
 ```
 
-From there it flowed through 33 layers of 8 bit shift registers (which took about 2 hours to map with this very slow tool):
+From there it flowed through 33 layers of 8-bit shift registers (which took about 2 hours to map with this very slow tool):
 ```json
         "n338": "inp0_0",
         "n348": "inp0_4",
@@ -657,7 +657,7 @@ We are lazy and in a hurry so we go for the formal verification approach :)
 
 ### 11.1 Prepare design for solving
 
-To make it easy to read out the conditions where the check is true we bundle the input bits into multiple 8bit wide nets. Most of the tooling only works with 1bit nets.
+To make it easy to read out the conditions where the check is true we bundle the input bits into multiple 8-bit wide nets. Most of the tooling only works with 1-bit nets.
 
 Modifying the json to add the following will create new nets combining each byte.
 ```json
@@ -704,7 +704,7 @@ Run the flow to generate a new set of files.
 
 This step might be a bit confusing but we are only interested in the comparison of the input flip-flops.
 
-If we were to remove all assignments and initializations of the `inp32_1` flip flop it will contain `1'bX` (undefined) which will count as either value that might make sense to the comparison that it is used in whenever it's used. This is useful since we just want to know what value it should have for the condition we are interested in.
+If we were to remove all assignments and initializations of the `inp32_1` flip-flop it will contain `1'bX` (undefined) which will count as either value that might make sense to the comparison that it is used in whenever it's used. This is useful since we just want to know what value it should have for the condition we are interested in.
 
 In the case of `inp13_1` we need to remove the assignment `inp13_1 <= inp12_1;`, `inp13_1 <= 0;` and change the initialization from `reg inp13_1 = 0;` to `reg inp13_1;`.
 
