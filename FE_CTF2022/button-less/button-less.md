@@ -18,7 +18,7 @@
 
 ## Tools used
 
-- Magnificient Stallion Verilog Cleaner 
+- [Magnificient Stallion Verilog Cleaner](/FE_CTF2022/button-less/tooling/)
 - icestorm
 - yosys
 - nextpnr
